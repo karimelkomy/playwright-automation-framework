@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "lib": ["ES2022"],
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "types": ["node", "@playwright/test"],
+    "baseUrl": ".",
+    "paths": {
+      "@pages/*": ["pages/*"],
+      "@components": ["core/BasePage.ts"],
+      "@config": ["config/timeouts.ts"],
+      "@interfaces": ["interfaces/*"],
+      "@data": ["data/index.ts"],
+      "@fixtures": ["fixtures/index.ts"]
+    }
+  },
+  "include": ["**/*", "tests/**/*"],
+  "exclude": ["node_modules"]
+}

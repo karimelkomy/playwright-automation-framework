@@ -1,0 +1,24 @@
+{
+  "name": "qa-automation-challenge",
+  "version": "1.0.0",
+  "description": "QA Automation Challenge using Playwright and TypeScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test --headed --workers=1",
+    "test:headless": "npx playwright test --workers=1",
+    "allure-result": "allure generate allure/allure-results --clean -o allure/allure-report",
+    "allure-report": "allure open allure/allure-report",
+    "report": "npm run allure-result && npm run allure-report",
+    "type:check": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "Karim Elkomy",
+  "license": "MIT",
+  "devDependencies": {
+    "@faker-js/faker": "^9.9.0",
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^22.0.0",
+    "allure-playwright": "^3.4.3",
+    "typescript": "^5.6.3"
+  }
+}
