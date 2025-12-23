@@ -10,18 +10,19 @@ A production-ready Playwright automation framework built with TypeScript, follow
 - **Data-Driven Testing** - Parameterized tests with external test data
 - **Allure Reporting** - Beautiful test reports with screenshots and videos
 - **Parallel Execution** - Tests run in parallel for faster feedback
-- **CI/CD Ready** - Configured for continuous integration
+- **GitHub Actions CI/CD** - Manual workflow trigger with browser selection
 
 ## Project Structure
 
 ```
-├── config/           # Configuration (timeouts, URLs)
-├── core/             # Base classes (BasePage)
-├── data/             # Test data and constants
-├── fixtures/         # Custom Playwright fixtures
-├── interfaces/       # TypeScript interfaces
-├── pages/            # Page Object classes
-├── tests/            # Test specifications
+├── .github/workflows/  # GitHub Actions CI/CD
+├── config/             # Configuration (timeouts, URLs)
+├── core/               # Base classes (BasePage)
+├── data/               # Test data and constants
+├── fixtures/           # Custom Playwright fixtures
+├── interfaces/         # TypeScript interfaces
+├── pages/              # Page Object classes
+├── tests/              # Test specifications
 ├── playwright.config.ts
 ├── package.json
 └── tsconfig.json
@@ -71,6 +72,18 @@ npx playwright test --project=Chrome
 npm run report
 ```
 
+## CI/CD
+
+### GitHub Actions
+
+Tests can be triggered manually via GitHub Actions:
+
+1. Go to **Actions** tab in your repository
+2. Select **Playwright Tests** workflow
+3. Click **Run workflow**
+4. Choose browser (Chrome, Firefox, or Safari)
+5. Click **Run workflow** button
+
 ## Framework Architecture
 
 ### BasePage
@@ -90,18 +103,22 @@ class BasePage {
 
 ### Page Objects
 
-Page objects encapsulate page-specific locators and actions:
+Page objects encapsulate page-specific locators and actions using Playwright's official constructor initialization pattern:
 
 ```typescript
 class LandingPage extends BasePage {
-  // Locators as getters
-  get stepTitle() { return this.formContainer.locator(".stepTitle"); }
+  readonly stepTitle: Locator;
+  private readonly emailInput: Locator;
 
-  // Actions
-  async fillEmail({ email }) { await this.fill(this.emailInput, email); }
+  constructor(page: Page) {
+    super(page);
+    this.stepTitle = page.locator(".stepTitle");
+    this.emailInput = page.getByRole("textbox", { name: "Enter Your Email" });
+  }
 
-  // Composite workflows
-  async submitContactInfoStep({ formDetails }) { /* ... */ }
+  async fillEmail({ email }: { email: string }) {
+    await this.fill(this.emailInput, email);
+  }
 }
 ```
 
@@ -161,7 +178,7 @@ Key configuration options in `playwright.config.ts`:
 1. **Test Isolation** - Each test runs independently
 2. **No Hardcoded Waits** - Uses Playwright's auto-waiting
 3. **Assertions in Tests** - Page objects don't contain assertions
-4. **DRY Locators** - Locators defined once as getters
+4. **Constructor Locators** - Locators initialized in constructor (official Playwright pattern)
 5. **Descriptive Test Names** - Clear, behavior-focused names
 6. **Data Separation** - Test data in separate files
 
@@ -171,16 +188,21 @@ Key configuration options in `playwright.config.ts`:
 
 1. Create a new file in `pages/`
 2. Extend `BasePage`
-3. Define locators as getters
-4. Add action methods
+3. Declare locators as readonly properties
+4. Initialize locators in constructor
+5. Add action methods
 
 ```typescript
 // pages/NewPage.ts
 import { BasePage } from "@components";
+import { Locator, Page } from "@playwright/test";
 
 export class NewPage extends BasePage {
-  private get submitButton() {
-    return this.locator("#submit");
+  private readonly submitButton: Locator;
+
+  constructor(page: Page) {
+    super(page);
+    this.submitButton = page.getByRole("button", { name: "Submit" });
   }
 
   async clickSubmit() {
