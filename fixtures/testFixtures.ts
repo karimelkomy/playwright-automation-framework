@@ -1,6 +1,8 @@
-import { test as base } from "@playwright/test";
+import { test as base, expect } from "@playwright/test";
 import { LandingPage } from "@pages/LandingPage";
 import { ThankYouPage } from "@pages/ThankYouPage";
+
+export { expect };
 
 export const test = base.extend<{
   landingPage: LandingPage;

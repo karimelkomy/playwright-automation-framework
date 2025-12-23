@@ -1,27 +1,26 @@
-import { test } from "@fixtures";
-import { FormDetails, invalidPhones } from "@data";
+import { test, expect } from "@fixtures";
+import { FormDetails, invalidPhones, stepTitles } from "@data";
 
-test("Validate invalid phone number", async ({ landingPage }) => {
-  const formDetails = FormDetails();
+const formDetails = FormDetails();
 
-  await test.step("Navigate to landing page", async () => {
+test.describe("Invalid phone validation", () => {
+  test.beforeEach(async ({ landingPage }) => {
     await landingPage.goto();
+    await landingPage.submitZipCodeStep({ formDetails });
+    await landingPage.submitInterestStep({ formDetails });
+    await landingPage.submitPropertyTypeStep({ formDetails });
+    await landingPage.submitContactInfoStep({ formDetails });
   });
 
   for (const invalidPhone of invalidPhones) {
-    await test.step("Navigate to phone step", async () => {
-      await landingPage.submitZipCodeStep({ formDetails });
-      await landingPage.submitInterestStep({ formDetails });
-      await landingPage.submitPropertyTypeStep({ formDetails });
-      await landingPage.submitContactInfoStep({ formDetails });
-    });
-
-    await test.step(`Validate invalid phone number "${invalidPhone}" are rejected`, async () => {
+    test(`should reject invalid phone number: "${invalidPhone || "(empty)"}"`, async ({
+      landingPage,
+    }) => {
       await landingPage.fillPhone({ phone: invalidPhone });
       await landingPage.clickSubmitYourRequest();
-      await landingPage.validateWrongEmptyPhoneNumber();
-      await landingPage.validateLastStep();
-      await landingPage.refreshPage();
+
+      await expect(landingPage.errorMessage).toHaveText(/Wrong phone number.|Enter your phone number./);
+      await expect(landingPage.stepTitle).toContainText(stepTitles.lastStep);
     });
   }
 });

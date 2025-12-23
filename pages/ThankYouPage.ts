@@ -7,9 +7,15 @@ export class ThankYouPage extends BasePage {
     super(page);
   }
 
-  async validateThankYouPage() {
-    await this.waitForUrlContains(urlPaths.thankYou);
+  get heading() {
+    return this.page.getByRole("heading");
+  }
 
-    await this.validateContain(this.page.getByRole("heading"), "Thank you!");
+  get thankYouUrl() {
+    return urlPaths.thankYou;
+  }
+
+  async waitForThankYouPage() {
+    await this.waitForUrlContains(urlPaths.thankYou);
   }
 }

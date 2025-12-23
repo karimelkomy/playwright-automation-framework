@@ -1,1 +1,1 @@
-export { test } from './testFixtures';
+export { test, expect } from './testFixtures';

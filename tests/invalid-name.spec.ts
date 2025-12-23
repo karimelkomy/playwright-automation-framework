@@ -1,24 +1,22 @@
-import { test } from "@fixtures";
-import { FormDetails } from "@data";
+import { test, expect } from "@fixtures";
+import { FormDetails, stepTitles } from "@data";
 
-test("Validate invalid name", async ({ landingPage }) => {
-  const formDetails = FormDetails();
+const formDetails = FormDetails();
 
-  await test.step("Navigate to landing page", async () => {
+test.describe("Invalid name validation", () => {
+  test.beforeEach(async ({ landingPage }) => {
     await landingPage.goto();
-  });
-
-  await test.step("Navigate to contact info step", async () => {
     await landingPage.submitZipCodeStep({ formDetails });
     await landingPage.submitInterestStep({ formDetails });
     await landingPage.submitPropertyTypeStep({ formDetails });
   });
 
-  await test.step("Validate first name only is rejected", async () => {
+  test("should reject first name only (requires full name)", async ({ landingPage }) => {
     await landingPage.fillName({ name: formDetails.firstName });
     await landingPage.fillEmail({ email: formDetails.email });
     await landingPage.clickGoToEstimate();
-    await landingPage.validateNotLastStep();
-    await landingPage.validateContactInfoStep();
+
+    await expect(landingPage.stepTitle).not.toContainText(stepTitles.lastStep);
+    await expect(landingPage.stepTitle).toContainText(stepTitles.contactInfo);
   });
 });

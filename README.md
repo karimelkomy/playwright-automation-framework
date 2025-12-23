@@ -1,177 +1,212 @@
-# QA Automation Challenge
+# Playwright Automation Framework
 
-## Table of Contents
+A production-ready Playwright automation framework built with TypeScript, following best practices for test automation.
 
-- [Overview](#overview)
-- [Installation](#installation)
-- [Running Tests](#running-tests)
-- [Project Structure](#project-structure)
-- [Scenario Selection Rationale](#scenario-selection-rationale)
-- [Scalability and Maintainability Improvements](#scalability-and-maintainability-improvements)
-- [Additional Improvements](#additional-improvements)
+## Features
 
-## Overview
-
-This project contains automated tests for form at `https://test-qa.capslock.global`.
-
-1. **ZIP Code** - 5-digit postal code validation
-2. **Interests** - Multiple selection options
-3. **Property Type** - Single selection option
-4. **Name and Email Information** - Name, and email
-5. **Phone Information** - Phone number
-
-### Form Requirements
-
-- All fields are required
-- ZIP code must contain exactly 5 digits
-- Email must match a valid email pattern (e.g., user@example.com)
-- Phone number must contain exactly 10 digits
-- After successful submission, the user is redirected to a "Thank you" page
-
-## Installation
-
-### Prerequisites
-
-- Node.js (v20.18.2)
-
-### Setup Instructions
-
-1. Clone or download this repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-4. Install Playwright browsers:
-   ```bash
-   npx playwright install
-   ```
-
-
-### Environment Setup
-
-#### Required `.env` Parameters:
-
-```env
-BROWSER=                       # Browser (Chrome, Firefox or Safari)
-```
-
-## Running Tests
-
-### Run All Tests
-
-```bash
-npm test
-```
-
-### Run Tests in Headed Mode
-
-```bash
-npm run test
-```
-
-### Run Tests in Headless Mode
-
-```bash
-npm run test:headless
-```
-
-### Run Allure Report
-
-```bash
-npm run report
-```
-
+- **Page Object Model (POM)** - Clean separation of page interactions and test logic
+- **TypeScript** - Type safety and better IDE support
+- **Custom Fixtures** - Reusable test setup with Playwright fixtures
+- **Data-Driven Testing** - Parameterized tests with external test data
+- **Allure Reporting** - Beautiful test reports with screenshots and videos
+- **Parallel Execution** - Tests run in parallel for faster feedback
+- **CI/CD Ready** - Configured for continuous integration
 
 ## Project Structure
 
 ```
-qa-automation-challenge/
- ├── .claude/agents    # Playwright agents
- ├── allure/           # Allure reports folder
- ├── config/           # Configurations
- ├── core/             # Core components
- ├── data/             # Test data
- ├── fixtures/         # Fixtures for test data
- ├── interfaces/       # TypeScript interfaces
- ├── pages/            # Page Object Model (POM)
- ├── tests/            # Test files
- ├── playwright.config.ts # Playwright configuration
- ├── package.json         # Node.js dependencies
- ├── README.md            # Project documentation
- ├── tsconfig.json        # TypeScript configuration
+├── config/           # Configuration (timeouts, URLs)
+├── core/             # Base classes (BasePage)
+├── data/             # Test data and constants
+├── fixtures/         # Custom Playwright fixtures
+├── interfaces/       # TypeScript interfaces
+├── pages/            # Page Object classes
+├── tests/            # Test specifications
+├── playwright.config.ts
+├── package.json
+└── tsconfig.json
 ```
 
-## Architecture
+## Quick Start
 
-### Page Object Model (POM)
+### Prerequisites
 
-The project follows the Page Object Model pattern for better maintainability and reusability.
+- Node.js (v18 or higher)
+- npm or yarn
 
-## Scenario Selection Rationale
+### Installation
 
-### Why I Selected These Scenarios
+```bash
+# Clone the repository
+git clone <repository-url>
+cd playwright-automation-framework
 
-I focused on the most critical parts of the form that could break the user journey:
+# Install dependencies
+npm install
 
-1. **Valid Form Submission** - This is the main flow. If this doesn't work, users can't submit anything.
+# Install Playwright browsers
+npx playwright install
+```
 
-2. **ZIP Code Validation** - First step in the form. If it accepts wrong data or blocks valid input, users either get stuck or we get bad data.
+### Running Tests
 
-3. **Email Validation** - Without valid email, we can't contact the user. Tested common mistakes like missing @, spaces, etc.
+```bash
+# Run all tests (headed mode)
+npm test
 
-4. **Phone Validation** - Last step before submit. Important to validate the format correctly.
+# Run tests in headless mode
+npm run test:headless
 
-5. **Name Validation** - Found that it needs full name (first + last), not just first name. This should be clearer in the UI.
+# Run specific test file
+npx playwright test tests/valid-form-submission.spec.ts
 
-6. **Required Fields** - All fields should be mandatory per requirements. Made sure form doesn't progress with empty fields.
+# Run tests with specific browser
+npx playwright test --project=Chrome
+```
 
-### What I Didn't Automate
+### Viewing Reports
 
-- Interest and property type selections - these are simple clicks without validation logic
-- Visual testing - not in the requirements
-- Cross-browser testing - can be added later but focused on Chrome first
+```bash
+# Generate and open Allure report
+npm run report
+```
 
-## Scalability and Maintainability Improvements
+## Framework Architecture
 
-### What's Already Good
+### BasePage
 
-- Page Object Model separates test logic from page interactions
-- Faker.js generates random data so tests don't conflict
-- TypeScript helps catch errors early
-- Allure gives good reports
+The `BasePage` class provides common methods for all page objects:
 
-### What Could Be Added
+```typescript
+class BasePage {
+  locator(selector: string)           // Create a locator
+  navigateTo(url: string)             // Navigate with default options
+  waitFor(locator, state, timeout)    // Wait for element state
+  waitForUrlContains(url)             // Wait for URL pattern
+  click(locator)                      // Click element
+  fill(locator, value)                // Fill input field
+}
+```
 
-1. **API setup** - Use APIs to create test data instead of going through UI every time. Much faster.
+### Page Objects
 
-2. **Environment config** - Right now baseURL is hardcoded. Should support dev/staging/prod environments.
+Page objects encapsulate page-specific locators and actions:
 
-3. **Test tags** - Add @smoke, @regression tags to run different test sets.
+```typescript
+class LandingPage extends BasePage {
+  // Locators as getters
+  get stepTitle() { return this.formContainer.locator(".stepTitle"); }
 
-4. **Retry mechanism** - Add retries in CI to handle flaky network issues.
+  // Actions
+  async fillEmail({ email }) { await this.fill(this.emailInput, email); }
 
-5. **Parallel execution** - Tests are already isolated, can run them in parallel to save time.
+  // Composite workflows
+  async submitContactInfoStep({ formDetails }) { /* ... */ }
+}
+```
 
-## Additional Improvements
+### Test Structure
 
-### Playwright Agents
+Tests follow a consistent pattern with `describe` blocks and `beforeEach` hooks:
 
-I added Playwright MCP Agents to the project (in `.claude/agents/` folder). These work with Claude Code and can help with:
+```typescript
+test.describe("Feature name", () => {
+  test.beforeEach(async ({ landingPage }) => {
+    await landingPage.goto();
+  });
 
-- **Test Planner** - Explores the app and creates test plans
-- **Test Generator** - Generates test code from plans
-- **Test Healer** - Fixes broken tests when selectors change
+  test("should do something", async ({ landingPage }) => {
+    // Test actions and assertions
+  });
+});
+```
 
-This is useful because maintaining locators is one of the biggest pain points in automation. When UI changes, these agents can help update the tests automatically.
+### Custom Fixtures
 
-### Bugs Found
+Custom fixtures provide page objects to tests:
 
-During testing I found some issues with the form:
-- Form doesn't progress after clicking Next with zip code 12345
-- Duplicate forms on the page
-- Name field doesn't clearly show that full name is required
+```typescript
+// fixtures/testFixtures.ts
+export const test = base.extend<{
+  landingPage: LandingPage;
+  thankYouPage: ThankYouPage;
+}>({
+  landingPage: async ({ page }, use) => {
+    await use(new LandingPage(page));
+  },
+});
+```
+
+## Configuration
+
+### Environment Variables
+
+Create a `.env` file:
+
+```env
+BROWSER=Chrome    # Chrome, Firefox, or Safari
+```
+
+### Playwright Config
+
+Key configuration options in `playwright.config.ts`:
+
+- **Parallel execution** - Tests run in parallel by default
+- **Retries** - Automatic retries for flaky tests in CI
+- **Screenshots/Videos** - Captured on failure
+- **Allure Reporter** - Integrated reporting
+
+## Best Practices Used
+
+1. **Test Isolation** - Each test runs independently
+2. **No Hardcoded Waits** - Uses Playwright's auto-waiting
+3. **Assertions in Tests** - Page objects don't contain assertions
+4. **DRY Locators** - Locators defined once as getters
+5. **Descriptive Test Names** - Clear, behavior-focused names
+6. **Data Separation** - Test data in separate files
+
+## Extending the Framework
+
+### Adding a New Page Object
+
+1. Create a new file in `pages/`
+2. Extend `BasePage`
+3. Define locators as getters
+4. Add action methods
+
+```typescript
+// pages/NewPage.ts
+import { BasePage } from "@components";
+
+export class NewPage extends BasePage {
+  private get submitButton() {
+    return this.locator("#submit");
+  }
+
+  async clickSubmit() {
+    await this.click(this.submitButton);
+  }
+}
+```
+
+### Adding to Fixtures
+
+Update `fixtures/testFixtures.ts`:
+
+```typescript
+export const test = base.extend<{
+  newPage: NewPage;
+}>({
+  newPage: async ({ page }, use) => {
+    await use(new NewPage(page));
+  },
+});
+```
 
 ## Author
 
-This project is maintained by Karim Elkomy
+Karim Elkomy
+
+## License
+
+MIT

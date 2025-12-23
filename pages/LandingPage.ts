@@ -7,138 +7,91 @@ export class LandingPage extends BasePage {
     super(page);
   }
 
+  private get formContainer() {
+    return this.locator("#form-container-1");
+  }
+
+  get stepTitle() {
+    return this.formContainer.locator(".stepTitle").filter({ visible: true });
+  }
+
+  get errorMessage() {
+    return this.formContainer.locator("[data-error-block] div");
+  }
+
+  private get zipCodeInput() {
+    return this.formContainer.getByRole("textbox", { name: "Enter ZIP Code" });
+  }
+
+  private get nameInput() {
+    return this.formContainer.getByRole("textbox", { name: "Enter Your Name" });
+  }
+
+  private get emailInput() {
+    return this.formContainer.getByRole("textbox", {
+      name: "Enter Your Email",
+    });
+  }
+
+  private get phoneInput() {
+    return this.formContainer.getByRole("textbox", { name: "(XXX)XXX-XXXX" });
+  }
+
+  private get nextButton() {
+    return this.formContainer.getByRole("button", { name: "Next" });
+  }
+
+  private get goToEstimateButton() {
+    return this.formContainer.getByRole("button", { name: "Go To Estimate" });
+  }
+
+  private get submitRequestButton() {
+    return this.formContainer.getByRole("button", {
+      name: "Submit Your Request",
+    });
+  }
+
   async goto() {
     await this.navigateTo(urlPaths.LandingPage);
-    await this.validateZipCodeStep();
-  }
-
-  async validateStep(expectedTitle: string) {
-    await this.validateContain(
-      this.locator("#form-container-1")
-        .locator(".stepTitle")
-        .filter({ visible: true }),
-      expectedTitle
-    );
-  }
-
-  async validateNotStep(notExpectedTitle: string) {
-    await this.validateNotContain(
-      this.locator("#form-container-1")
-        .locator(".stepTitle")
-        .filter({ visible: true }),
-      notExpectedTitle
-    );
-  }
-
-  async validateZipCodeStep() {
-    await this.validateStep("What is your ZIP Code?");
-  }
-
-  async validateNotZipCodeStep() {
-    await this.validateNotStep("What is your ZIP Code?");
-  }
-
-  async validateInterestStep() {
-    await this.validateStep("Why are you interested in a walk-in tub?");
-  }
-
-  async validateNotInterestStep() {
-    await this.validateNotStep("Why are you interested in a walk-in tub?");
-  }
-
-  async validatePropertyTypeStep() {
-    await this.validateStep("What type of property is this");
-  }
-
-  async validateNotPropertyTypeStep() {
-    await this.validateNotStep("What type of property is this");
-  }
-
-  async validateContactInfoStep() {
-    await this.validateStep("Who should we prepare this FREE estimate for?");
-  }
-
-  async validateNotContactInfoStep() {
-    await this.validateNotStep("Who should we prepare this FREE estimate for?");
-  }
-
-  async validateLastStep() {
-    await this.validateStep("LAST STEP!");
-  }
-
-  async validateNotLastStep() {
-    await this.validateNotStep("LAST STEP!");
-  }
-
-  async validateWrongEmptyPhoneNumber() {
-    await this.validateMatch(
-      this.locator("#form-container-1").locator("[data-error-block] div"),
-      /Wrong phone number.|Enter your phone number./
-    );
-  }
-
-  async clickSubmitStep(name: string) {
-    await this.click(
-      this.locator("#form-container-1").getByRole("button", { name })
-    );
+    await this.waitFor(this.stepTitle);
   }
 
   async clickNext() {
-    await this.clickSubmitStep("Next");
+    await this.click(this.nextButton);
   }
 
   async clickGoToEstimate() {
-    await this.clickSubmitStep("Go To Estimate");
+    await this.click(this.goToEstimateButton);
   }
 
   async clickSubmitYourRequest() {
-    await this.clickSubmitStep("Submit Your Request");
+    await this.click(this.submitRequestButton);
   }
 
   async fillZipCode({ zipCode }: { zipCode: string }) {
-    await this.fill(
-      this.locator("#form-container-1").getByRole("textbox", {
-        name: "Enter ZIP Code",
-      }),
-      zipCode
-    );
+    await this.fill(this.zipCodeInput, zipCode);
+  }
+
+  async fillName({ name }: { name: string }) {
+    await this.fill(this.nameInput, name);
+  }
+
+  async fillEmail({ email }: { email: string }) {
+    await this.fill(this.emailInput, email);
+  }
+
+  async fillPhone({ phone }: { phone: string }) {
+    await this.fill(this.phoneInput, phone);
   }
 
   async selectInterestReasons({ interests }: { interests: string[] }) {
     for (const interest of interests) {
-      await this.click(this.locator("#form-container-1").getByText(interest));
+      await this.click(this.formContainer.getByText(interest));
     }
   }
 
   async selectPropertyType({ propertyType }: { propertyType: string }) {
-    await this.click(this.locator("#form-container-1").getByText(propertyType));
-  }
-
-  async fillName({ name }: { name: string }) {
-    await this.fill(
-      this.locator("#form-container-1").getByRole("textbox", {
-        name: "Enter Your Name",
-      }),
-      name
-    );
-  }
-
-  async fillEmail({ email }: { email: string }) {
-    await this.fill(
-      this.locator("#form-container-1").getByRole("textbox", {
-        name: "Enter Your Email",
-      }),
-      email
-    );
-  }
-
-  async fillPhone({ phone }: { phone: string }) {
-    await this.fill(
-      this.locator("#form-container-1").getByRole("textbox", {
-        name: "(XXX)XXX-XXXX",
-      }),
-      phone
-    );
+    await this.click(this.formContainer.getByText(propertyType));
   }
 
   async submitZipCodeStep({
@@ -146,10 +99,8 @@ export class LandingPage extends BasePage {
   }: {
     formDetails: FormDetailsInterface;
   }) {
-    const { zipCode } = formDetails;
-
-    await this.validateZipCodeStep();
-    await this.fillZipCode({ zipCode });
+    await this.waitFor(this.stepTitle);
+    await this.fillZipCode({ zipCode: formDetails.zipCode });
     await this.clickNext();
   }
 
@@ -158,10 +109,8 @@ export class LandingPage extends BasePage {
   }: {
     formDetails: FormDetailsInterface;
   }) {
-    const { interests } = formDetails;
-
-    await this.validateInterestStep();
-    await this.selectInterestReasons({ interests });
+    await this.waitFor(this.stepTitle);
+    await this.selectInterestReasons({ interests: formDetails.interests });
     await this.clickNext();
   }
 
@@ -170,10 +119,8 @@ export class LandingPage extends BasePage {
   }: {
     formDetails: FormDetailsInterface;
   }) {
-    const { propertyType } = formDetails;
-
-    await this.validatePropertyTypeStep();
-    await this.selectPropertyType({ propertyType });
+    await this.waitFor(this.stepTitle);
+    await this.selectPropertyType({ propertyType: formDetails.propertyType });
     await this.clickNext();
   }
 
@@ -182,11 +129,9 @@ export class LandingPage extends BasePage {
   }: {
     formDetails: FormDetailsInterface;
   }) {
-    const { fullName, email } = formDetails;
-
-    await this.validateContactInfoStep();
-    await this.fillName({ name: fullName });
-    await this.fillEmail({ email });
+    await this.waitFor(this.stepTitle);
+    await this.fillName({ name: formDetails.fullName });
+    await this.fillEmail({ email: formDetails.email });
     await this.clickGoToEstimate();
   }
 
@@ -195,10 +140,8 @@ export class LandingPage extends BasePage {
   }: {
     formDetails: FormDetailsInterface;
   }) {
-    const { phone } = formDetails;
-
-    await this.validateLastStep();
-    await this.fillPhone({ phone });
+    await this.waitFor(this.stepTitle);
+    await this.fillPhone({ phone: formDetails.phone });
     await this.clickSubmitYourRequest();
   }
 }

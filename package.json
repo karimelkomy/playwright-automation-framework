@@ -1,17 +1,26 @@
 {
-  "name": "qa-automation-challenge",
+  "name": "playwright-automation-framework",
   "version": "1.0.0",
-  "description": "QA Automation Challenge using Playwright and TypeScript",
+  "description": "Production-ready Playwright automation framework with TypeScript, Page Object Model, and best practices",
   "main": "index.js",
   "scripts": {
-    "test": "npx playwright test --headed --workers=1",
-    "test:headless": "npx playwright test --workers=1",
+    "test": "npx playwright test --headed --workers=2",
+    "test:headless": "npx playwright test --workers=2",
+    "test:ci": "npx playwright test --workers=1 --retries=2",
     "allure-result": "allure generate allure/allure-results --clean -o allure/allure-report",
     "allure-report": "allure open allure/allure-report",
     "report": "npm run allure-result && npm run allure-report",
     "type:check": "tsc --noEmit"
   },
-  "keywords": [],
+  "keywords": [
+    "playwright",
+    "automation",
+    "testing",
+    "typescript",
+    "e2e",
+    "page-object-model",
+    "framework"
+  ],
   "author": "Karim Elkomy",
   "license": "MIT",
   "devDependencies": {

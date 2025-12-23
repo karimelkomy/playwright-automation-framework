@@ -1,18 +1,20 @@
-import { test } from "@fixtures";
-import { invalidZipCodes } from "@data";
+import { test, expect } from "@fixtures";
+import { invalidZipCodes, stepTitles } from "@data";
 
-test("Validate invalid zip code", async ({ landingPage }) => {
-  await test.step("Navigate to landing page", async () => {
+test.describe("Invalid zip code validation", () => {
+  test.beforeEach(async ({ landingPage }) => {
     await landingPage.goto();
   });
 
   for (const invalidZipCode of invalidZipCodes) {
-    await test.step(`Validate invalid zip code "${invalidZipCode}" are rejected`, async () => {
+    test(`should reject invalid zip code: "${invalidZipCode || "(empty)"}"`, async ({
+      landingPage,
+    }) => {
       await landingPage.fillZipCode({ zipCode: invalidZipCode });
       await landingPage.clickNext();
-      await landingPage.validateNotInterestStep();
-      await landingPage.validateZipCodeStep();
-      await landingPage.refreshPage();
+
+      await expect(landingPage.stepTitle).not.toContainText(stepTitles.interest);
+      await expect(landingPage.stepTitle).toContainText(stepTitles.zipCode);
     });
   }
 });

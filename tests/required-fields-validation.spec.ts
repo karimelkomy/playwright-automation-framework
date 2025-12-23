@@ -1,40 +1,52 @@
-import { test } from "@fixtures";
-import { FormDetails } from "@data";
+import { test, expect } from "@fixtures";
+import { FormDetails, stepTitles } from "@data";
 
-test("Validate all fields are required", async ({ landingPage }) => {
-  const formDetails = FormDetails();
+const formDetails = FormDetails();
 
-  await test.step("Validate ZIP code field is required", async () => {
+test.describe("Required fields validation", () => {
+  test.beforeEach(async ({ landingPage }) => {
     await landingPage.goto();
-    await landingPage.clickNext();
-    await landingPage.validateNotInterestStep();
-    await landingPage.validateZipCodeStep();
   });
 
-  await test.step("Navigate to contact info step", async () => {
-    await landingPage.fillZipCode({ zipCode: formDetails.zipCode });
+  test("should require ZIP code field", async ({ landingPage }) => {
     await landingPage.clickNext();
+
+    await expect(landingPage.stepTitle).not.toContainText(stepTitles.interest);
+    await expect(landingPage.stepTitle).toContainText(stepTitles.zipCode);
+  });
+
+  test("should require name and email fields", async ({ landingPage }) => {
+    await landingPage.submitZipCodeStep({ formDetails });
     await landingPage.submitInterestStep({ formDetails });
     await landingPage.submitPropertyTypeStep({ formDetails });
-  });
 
-  await test.step("Validate name and email are required", async () => {
     await landingPage.clickGoToEstimate();
-    await landingPage.validateNotLastStep();
-    await landingPage.validateContactInfoStep();
+
+    await expect(landingPage.stepTitle).not.toContainText(stepTitles.lastStep);
+    await expect(landingPage.stepTitle).toContainText(stepTitles.contactInfo);
   });
 
-  await test.step("Validate email is required when name is filled", async () => {
+  test("should require email when name is filled", async ({ landingPage }) => {
+    await landingPage.submitZipCodeStep({ formDetails });
+    await landingPage.submitInterestStep({ formDetails });
+    await landingPage.submitPropertyTypeStep({ formDetails });
+
     await landingPage.fillName({ name: formDetails.fullName });
     await landingPage.clickGoToEstimate();
-    await landingPage.validateNotLastStep();
-    await landingPage.validateContactInfoStep();
+
+    await expect(landingPage.stepTitle).not.toContainText(stepTitles.lastStep);
+    await expect(landingPage.stepTitle).toContainText(stepTitles.contactInfo);
   });
 
-  await test.step("Validate phone is required", async () => {
+  test("should require phone field", async ({ landingPage }) => {
+    await landingPage.submitZipCodeStep({ formDetails });
+    await landingPage.submitInterestStep({ formDetails });
+    await landingPage.submitPropertyTypeStep({ formDetails });
     await landingPage.submitContactInfoStep({ formDetails });
+
     await landingPage.clickSubmitYourRequest();
-    await landingPage.validateWrongEmptyPhoneNumber();
-    await landingPage.validateLastStep();
+
+    await expect(landingPage.errorMessage).toHaveText(/Wrong phone number.|Enter your phone number./);
+    await expect(landingPage.stepTitle).toContainText(stepTitles.lastStep);
   });
 });

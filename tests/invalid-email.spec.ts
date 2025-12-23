@@ -1,26 +1,25 @@
-import { test } from "@fixtures";
-import { FormDetails, invalidEmails } from "@data";
+import { test, expect } from "@fixtures";
+import { FormDetails, invalidEmails, stepTitles } from "@data";
 
-test("Validate invalid email format", async ({ landingPage }) => {
-  const formDetails = FormDetails();
+const formDetails = FormDetails();
 
-  await test.step("Navigate to landing page", async () => {
+test.describe("Invalid email validation", () => {
+  test.beforeEach(async ({ landingPage }) => {
     await landingPage.goto();
+    await landingPage.submitZipCodeStep({ formDetails });
+    await landingPage.submitInterestStep({ formDetails });
+    await landingPage.submitPropertyTypeStep({ formDetails });
   });
 
   for (const invalidEmail of invalidEmails) {
-    await test.step(`Navigate to email step`, async () => {
-      await landingPage.submitZipCodeStep({ formDetails });
-      await landingPage.submitInterestStep({ formDetails });
-      await landingPage.submitPropertyTypeStep({ formDetails });
-    });
-
-    await test.step(`Validate invalid email format "${invalidEmail}" are rejected`, async () => {
+    test(`should reject invalid email format: "${invalidEmail || "(empty)"}"`, async ({
+      landingPage,
+    }) => {
       await landingPage.fillName({ name: formDetails.fullName });
       await landingPage.fillEmail({ email: invalidEmail });
-      await landingPage.validateNotLastStep();
-      await landingPage.validateContactInfoStep();
-      await landingPage.refreshPage();
+
+      await expect(landingPage.stepTitle).not.toContainText(stepTitles.lastStep);
+      await expect(landingPage.stepTitle).toContainText(stepTitles.contactInfo);
     });
   }
 });

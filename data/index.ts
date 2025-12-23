@@ -5,3 +5,4 @@ export * from "./emails";
 export * from "./phones";
 export * from "./urlPaths";
 export * from "./zipCodes";
+export * from "./stepTitles";
