@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { FormDetailsInterface } from "../interfaces/FormDetailsInterface";
 import { interests } from "./interests";
 import { propertyTypes } from "./propertyTypes";
 

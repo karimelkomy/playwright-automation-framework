@@ -1,54 +1,32 @@
 import { BasePage } from "@components";
 import { urlPaths } from "@data";
-import { Page } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
+import { FormDetailsInterface } from "interfaces/FormDetailsInterface";
 
 export class LandingPage extends BasePage {
+  private readonly formContainer: Locator;
+  readonly stepTitle: Locator;
+  readonly errorMessage: Locator;
+  private readonly zipCodeInput: Locator;
+  private readonly nameInput: Locator;
+  private readonly emailInput: Locator;
+  private readonly phoneInput: Locator;
+  private readonly nextButton: Locator;
+  private readonly goToEstimateButton: Locator;
+  private readonly submitRequestButton: Locator;
+
   constructor(page: Page) {
     super(page);
-  }
-
-  private get formContainer() {
-    return this.locator("#form-container-1");
-  }
-
-  get stepTitle() {
-    return this.formContainer.locator(".stepTitle").filter({ visible: true });
-  }
-
-  get errorMessage() {
-    return this.formContainer.locator("[data-error-block] div");
-  }
-
-  private get zipCodeInput() {
-    return this.formContainer.getByRole("textbox", { name: "Enter ZIP Code" });
-  }
-
-  private get nameInput() {
-    return this.formContainer.getByRole("textbox", { name: "Enter Your Name" });
-  }
-
-  private get emailInput() {
-    return this.formContainer.getByRole("textbox", {
-      name: "Enter Your Email",
-    });
-  }
-
-  private get phoneInput() {
-    return this.formContainer.getByRole("textbox", { name: "(XXX)XXX-XXXX" });
-  }
-
-  private get nextButton() {
-    return this.formContainer.getByRole("button", { name: "Next" });
-  }
-
-  private get goToEstimateButton() {
-    return this.formContainer.getByRole("button", { name: "Go To Estimate" });
-  }
-
-  private get submitRequestButton() {
-    return this.formContainer.getByRole("button", {
-      name: "Submit Your Request",
-    });
+    this.formContainer = page.locator("#form-container-1");
+    this.stepTitle = this.formContainer.locator(".stepTitle").filter({ visible: true });
+    this.errorMessage = this.formContainer.locator("[data-error-block] div");
+    this.zipCodeInput = this.formContainer.getByRole("textbox", { name: "Enter ZIP Code" });
+    this.nameInput = this.formContainer.getByRole("textbox", { name: "Enter Your Name" });
+    this.emailInput = this.formContainer.getByRole("textbox", { name: "Enter Your Email" });
+    this.phoneInput = this.formContainer.getByRole("textbox", { name: "(XXX)XXX-XXXX" });
+    this.nextButton = this.formContainer.getByRole("button", { name: "Next" });
+    this.goToEstimateButton = this.formContainer.getByRole("button", { name: "Go To Estimate" });
+    this.submitRequestButton = this.formContainer.getByRole("button", { name: "Submit Your Request" });
   }
 
   async goto() {

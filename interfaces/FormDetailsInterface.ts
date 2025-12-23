@@ -1,4 +1,4 @@
-interface FormDetailsInterface {
+export interface FormDetailsInterface {
   firstName: string;
   lastName: string;
   fullName: string;

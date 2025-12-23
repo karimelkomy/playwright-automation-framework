@@ -1,18 +1,15 @@
 import { BasePage } from "@components";
 import { urlPaths } from "@data";
-import { Page } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 
 export class ThankYouPage extends BasePage {
+  readonly heading: Locator;
+  readonly thankYouUrl: string;
+
   constructor(page: Page) {
     super(page);
-  }
-
-  get heading() {
-    return this.page.getByRole("heading");
-  }
-
-  get thankYouUrl() {
-    return urlPaths.thankYou;
+    this.heading = page.getByRole("heading");
+    this.thankYouUrl = urlPaths.thankYou;
   }
 
   async waitForThankYouPage() {
