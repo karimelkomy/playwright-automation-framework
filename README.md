@@ -11,6 +11,7 @@ A production-ready Playwright automation framework built with TypeScript, follow
 - **Allure Reporting** - Beautiful test reports with screenshots and videos
 - **Parallel Execution** - Tests run in parallel for faster feedback
 - **GitHub Actions CI/CD** - Manual workflow trigger with browser selection
+- **Docker Support** - Run tests in containers for consistent environments
 
 ## Project Structure
 
@@ -23,6 +24,8 @@ A production-ready Playwright automation framework built with TypeScript, follow
 ├── interfaces/         # TypeScript interfaces
 ├── pages/              # Page Object classes
 ├── tests/              # Test specifications
+├── Dockerfile          # Docker configuration
+├── docker-compose.yml  # Docker Compose setup
 ├── playwright.config.ts
 ├── package.json
 └── tsconfig.json
@@ -83,6 +86,44 @@ Tests can be triggered manually via GitHub Actions:
 3. Click **Run workflow**
 4. Choose browser (Chrome, Firefox, or Safari)
 5. Click **Run workflow** button
+
+## Docker
+
+### Prerequisites
+
+- Docker Desktop installed and running
+
+### Running Tests in Docker
+
+```bash
+# Build the image
+docker build -t playwright-tests .
+
+# Run tests (default: Chrome)
+docker run --shm-size=2g playwright-tests
+
+# Run with specific browser
+docker run --shm-size=2g -e BROWSER=firefox playwright-tests
+docker run --shm-size=2g -e BROWSER=safari playwright-tests
+```
+
+### Using Docker Compose
+
+```bash
+# Run tests with default browser
+docker-compose up --build
+
+# Run with specific browser
+BROWSER=firefox docker-compose up --build
+```
+
+Test results are automatically mounted to your local `allure/` and `test-results/` directories.
+
+### Generate Reports After Docker Run
+
+```bash
+npm run report
+```
 
 ## Framework Architecture
 

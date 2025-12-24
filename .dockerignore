@@ -1,0 +1,8 @@
+node_modules
+test-results
+playwright-report
+allure/allure-results
+allure/allure-report
+.git
+*.log
+.DS_Store

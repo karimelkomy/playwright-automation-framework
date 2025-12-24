@@ -1,0 +1,10 @@
+services:
+  playwright:
+    build: .
+    environment:
+      - CI=true
+      - BROWSER=${BROWSER:-chrome}
+    volumes:
+      - ./allure:/app/allure
+      - ./test-results:/app/test-results
+    shm_size: '2gb'

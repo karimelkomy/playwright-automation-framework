@@ -16,24 +16,28 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.57.0-noble
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
       - name: Install dependencies
         run: npm ci
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps ${{ github.event.inputs.browser == 'Chrome' && 'chromium' || github.event.inputs.browser == 'Firefox' && 'firefox' || 'webkit' }}
 
       - name: Run Playwright tests
         run: npm run test:ci
         env:
           BROWSER: ${{ github.event.inputs.browser }}
+          HOME: /root
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ github.event.inputs.browser }}
+          path: |
+            test-results/
+            allure/allure-results/
+          retention-days: 30
