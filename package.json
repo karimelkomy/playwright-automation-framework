@@ -7,6 +7,8 @@
     "test": "npx playwright test --headed --workers=2",
     "test:headless": "npx playwright test --workers=2",
     "test:ci": "npx playwright test --workers=1 --retries=2",
+    "test:docker": "docker run --shm-size=2g -v $(pwd)/allure:/app/allure -v $(pwd)/test-results:/app/test-results playwright-tests npx playwright test --workers=2",
+    "docker:build": "docker build -t playwright-tests .",
     "allure-result": "allure generate allure/allure-results --clean -o allure/allure-report",
     "allure-report": "allure open allure/allure-report",
     "report": "npm run allure-result && npm run allure-report",
